@@ -99,17 +99,4 @@ public class TrackControl {
         return new ResponseEntity<List<Track>>(trackOne, HttpStatus.OK);
     }
 
-
-
-
-    /*@RequestMapping(value = "track/{id}/{comments}", method = RequestMethod.PUT)
-    public ResponseEntity<Track> Update(@PathVariable("comments") String comments, @PathVariable("id") int id) {
-        Track trackOne = trackService.updateComment(id,comments);
-        return new ResponseEntity<Track>(trackOne, HttpStatus.OK);
-    }*/
-    /*@RequestMapping(value = "track/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Boolean> delete(@PathVariable("id") int id) {
-        Boolean val = trackService.deleteTrack(id);
-        return new ResponseEntity<Boolean>(val, HttpStatus.OK);
-    }*/
 }

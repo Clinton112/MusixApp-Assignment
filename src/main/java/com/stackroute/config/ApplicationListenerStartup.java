@@ -8,8 +8,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 import org.jboss.logging.Logger;
 
-//import java.util.logging.Logger;
-
 @Component
 public class ApplicationListenerStartup implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger logs = Logger.getLogger(ApplicationListenerStartup.class);

@@ -29,28 +29,4 @@ public class Track {
 
     @ApiModelProperty(value = "Comments for each track")
     private String comments;
-
-//    public int getTrackID() {
-//        return trackID;
-//    }
-//
-//    public void setTrackID(int trackID) {
-//        this.trackID = trackID;
-//    }
-//
-//    public String getTrackName() {
-//        return trackName;
-//    }
-//
-//    public void setTrackName(String trackName) {
-//        this.trackName = trackName;
-//    }
-//
-//    public String getComments() {
-//        return comments;
-//    }
-//
-//    public void setComments(String comments) {
-//        this.comments = comments;
-//    }
 }
