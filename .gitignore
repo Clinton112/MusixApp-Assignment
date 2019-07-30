@@ -116,3 +116,6 @@ Desktop.ini
 # ESLint
 ######################
 .eslintcache
+.mvn/wrapper
+ mvnw.cmd
+ mvnw

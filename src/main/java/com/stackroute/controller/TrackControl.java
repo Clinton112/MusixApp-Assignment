@@ -1,102 +1,122 @@
 package com.stackroute.controller;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stackroute.domain.Track;
 import com.stackroute.exceptions.TrackAlreadyExistsException;
 import com.stackroute.exceptions.TrackNotFoundException;
+import com.stackroute.repository.TrackRepository;
 import com.stackroute.service.TrackService;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
-
 @RestController
-@RequestMapping("api/v1/")
-public class TrackControl {
-    @Autowired
-    private TrackService trackService;
+@RequestMapping(value="api/v1")
+public class TrackController {
 
-    public TrackControl(TrackService trackService) {
+    TrackService trackService;
+    TrackRepository trackRepository;
+
+    public TrackController(TrackService trackService) {
         this.trackService = trackService;
     }
 
-    public void setTrackService(TrackService trackService) {
-        this.trackService = trackService;
-    }
+    @PostMapping("track")
+    public ResponseEntity<?> saveTrack(@RequestBody Track track) {
 
-
-
-    @ApiOperation(value = "Saves track in database")
-    @RequestMapping(value = "track", method= RequestMethod.POST)
-    public ResponseEntity<Track> saveTrack(@RequestBody Track track)
-    {
         ResponseEntity responseEntity;
         try {
-            Track trackOne = trackService.saveTrack(track);
-            responseEntity = new ResponseEntity<Track>(track, HttpStatus.CREATED);
-        } catch (TrackAlreadyExistsException ex)
-        {
-            responseEntity = new ResponseEntity <String>(ex.getMessage(),HttpStatus.CONFLICT);
-            ex.printStackTrace();
+            trackService.saveTrack(track);
+            responseEntity = new ResponseEntity("Successfully created", HttpStatus.CREATED);
+        }
+
+        catch(TrackAlreadyExistsException ex) {
+            responseEntity = new ResponseEntity<String>(ex.getMessage(), HttpStatus.CONFLICT);
+        }
+
+        return responseEntity;
+
+    }
+
+    @PostMapping("tracks")
+    public ResponseEntity<?> getTracks(@RequestBody List<Track> track) throws RuntimeException, TrackAlreadyExistsException {
+
+        ResponseEntity responseEntity;
+
+        for(Track t:track) {
+            trackService.saveTrack(t);
+        }
+
+        responseEntity = new ResponseEntity<List<Track>>(trackService.getAllTracks(), HttpStatus.CREATED);
+
+        return responseEntity;
+    }
+
+    @DeleteMapping(value = "/delete/{id}")
+    public ResponseEntity<?> deleteTrack(@PathVariable Integer id) {
+
+        ResponseEntity responseEntity;
+        try{
+
+            trackService.deleteTrack(id);
+            responseEntity = new ResponseEntity("Delete Successfull", HttpStatus.NO_CONTENT);
+
+        }
+
+        catch (TrackNotFoundException ex) {
+
+            responseEntity = new ResponseEntity<String>(ex.getMessage(), HttpStatus.CONFLICT);
+        }
+
+        return responseEntity;
+
+    }
+
+    @PutMapping(value = "/update/{id}/{comment}")
+    public ResponseEntity<?> updateTrack(@PathVariable int trackId, @PathVariable String trackComment) {
+
+        ResponseEntity responseEntity;
+        try {
+            trackService.updateComment(trackId,trackComment);
+            responseEntity = new ResponseEntity<String>("Update Successfull", HttpStatus.CREATED);
+        } catch (Exception ex) {
+            responseEntity = new ResponseEntity<String>(ex.getMessage(), HttpStatus.CONFLICT);
         }
         return responseEntity;
 
     }
 
 
+    /*public void getBulkData() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println("vishal");
+        URL url = new URL("http://ws.audioscrobbler.com/2.0/?method=track.search&track=Believe&api_key=5a2f391ed9b92b27a6a5b4113743df8c&format=json");
+        Track track = objectMapper.readValue(url, Track.class);
+        trackRepository.save(track);
+        System.out.println(track.toString());
+    }*/
 
-    @ApiOperation(value = "Gets all tracks from database")
-    @RequestMapping(value = "tracks", method = RequestMethod.GET)
-    public ResponseEntity<List<Track>> showAllTracks() {
-        List<Track > trackOne = trackService.showAllTracks();
-        return new ResponseEntity<List<Track>>(trackOne, HttpStatus.OK);
-    }
-
-
-    @ApiOperation(value = "Update comment of a track")
-    @RequestMapping(value = "track", method= RequestMethod.PUT)
-    public ResponseEntity<Track> updateTrack(@RequestBody Track track)
-    {
-        ResponseEntity responseEntity;
+    @GetMapping("tracks")
+    public ResponseEntity<?> getAllTracks() {
+        ResponseEntity responseEntity = new ResponseEntity<>(trackService.showAllTracks(), HttpStatus.OK);
         try {
-            Track trackOne = trackService.updateComment(track);
-            return new ResponseEntity<Track>(trackOne, HttpStatus.OK);
-        }catch (TrackNotFoundException ex)
-        {
-            responseEntity = new ResponseEntity <String>(ex.getMessage(),HttpStatus.CONFLICT);
-            ex.printStackTrace();
+            System.out.println(trackService.getTrackByName("hello").toString());
+        } catch (TrackNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println(trackService.getTrackByName("hello").toString());
+        } catch (TrackNotFoundException e) {
+            e.printStackTrace();
         }
         return responseEntity;
 
-    }
-
-
-    @ApiOperation(value = "Deletes a track from database")
-    @RequestMapping(value = "track", method= RequestMethod.DELETE)
-    public ResponseEntity<String > deleteTrack(@RequestBody Track track)
-    {
-        ResponseEntity responseEntity;
-        try {
-            boolean answer = trackService.deleteTrack(track);
-            return new ResponseEntity<String>("Successfully deleted", HttpStatus.OK);
-        }catch (TrackNotFoundException ex)
-        {
-            responseEntity = new ResponseEntity <String>(ex.getMessage(),HttpStatus.CONFLICT);
-            ex.printStackTrace();
-        }
-        return responseEntity;
-
-    }
-
-
-    @ApiOperation(value = "Finds all the tracks with given name")
-    @RequestMapping(value = "track/{trackName}", method = RequestMethod.GET)
-    public ResponseEntity<List<Track>> getTrackByName(@PathVariable("trackName") String trackName) throws Exception {
-        List<Track> trackOne = trackService.getTrackByName(trackName);
-        return new ResponseEntity<List<Track>>(trackOne, HttpStatus.OK);
     }
 
 }

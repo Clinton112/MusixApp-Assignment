@@ -1,4 +1,4 @@
-package com.stackroute.response;
+package com.stackroute.exceptions;
 
 public class ResponseForError {
 
